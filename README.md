@@ -1,20 +1,24 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 远程调试链接
+* <script src="http://192.168.2.154:8090/target/target-script-min.js#anonymous"></script>
 
-## 集成的其他库
-* react-router
-* antd
+## 事件映射
 
-## 扩展的特性
-* 集成了react-app-rewired和customize-cra支持扩展webpack配置
-* 支持ES7 Decorator
-* 集成了babel-plugin-import支持样式的按需加载
-* 支持Sass
+* 删除-keydown keyCode=8
 
-## 新增的配置文件
-* .babelrc
-* jsconfig.json
-* .editorconfig
 
-## TODO
-* 集成prettier
-* 支持TypeScript
+## 光标
+``` javascript
+if(document.selection){
+    var sel=document.selection.createRange();
+    if(sel.text.length>0){
+      word=sel.text;
+    }
+  }
+  else if(select_field.selectionStart||select_field.selectionStart=='0'){
+    var startP=select_field.selectionStart;
+    var endP=select_field.selectionEnd;
+    if(startP!=endP){
+      word=select_field.value.substring(startP, endP);
+    }
+  }
+```

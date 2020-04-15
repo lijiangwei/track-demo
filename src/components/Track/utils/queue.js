@@ -9,7 +9,7 @@ class TrackQueue {
    * @param {*} trackEvent 一次操作事件
    */
   push(trackEvent){
-    console.log(trackEvent);
+    console.log(trackEvent.eventid);
     this.queue.push(trackEvent);
   }
 

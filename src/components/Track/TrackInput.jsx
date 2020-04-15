@@ -1,8 +1,12 @@
+import React from 'react';
 import {bindTrackEvent} from './utils/hoc';
 import {EventType, ElementType} from './utils/enum';
-import {InputItem} from 'antd-mobile';
 
-const TrackInputItem = bindTrackEvent([
+function Input(props){
+  return <input {...props} />
+}
+
+const TrackInput = bindTrackEvent([
   EventType.FOCUS,
   EventType.BLUR,
   EventType.COPY,
@@ -13,6 +17,6 @@ const TrackInputItem = bindTrackEvent([
   EventType.DELETE,
   EventType.INPUT,
   EventType.MOVECURSOR,
-], ElementType.INPUT)(InputItem);
+], ElementType.INPUT)(Input);
 
-export default TrackInputItem;
+export default TrackInput;
