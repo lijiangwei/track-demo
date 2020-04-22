@@ -1,6 +1,5 @@
 import React, { PureComponent } from "react";
 import { NavBar, List, InputItem, WhiteSpace, Button, Icon, Picker } from "antd-mobile";
-import {Link} from 'react-router-dom';
 import {
   TrackInputItem,
   TrackInput,
@@ -49,7 +48,7 @@ export default class Home extends PureComponent {
               });
               this.props.history.goBack();
             }
-          }><Icon type="left" /></a>}>首页</NavBar>
+          }><Icon type="left" /></a>}>手动提交首页</NavBar>
         <WhiteSpace />
         <FormDemoWrapper history={this.props.history} />
       </div>
@@ -77,44 +76,17 @@ class FormDemo extends React.Component {
     this.props.form.validateFields({ force: true }, (error) => {
       if (!error) {
         console.log(this.props.form.getFieldsValue());
+        //调用提交方法
+        trackQueue.send();
         this.props.history.push('/track-item-result');
       }
     });
-  }
-
-
-  handleOriginSelect = (e) => {
-    console.log(e.type, e.currentTarget.value);
-  }
-
-  handleSelect = (e) => {
-    console.log(e.type);
-  }
-
-  handleInput = (e) => {
-    console.log(e.type);
-  }
-
-  handleChange = (e) => {
-    console.log(e.type);
-  }
-
-  handleContextMenu = (e) => {
-    console.log("handleContextMenu");
-  }
-
-  handleClick = (e) => {
-    console.log(e);
   }
 
   handlePickerChange = (val) => {
     this.setState({
       season: val,
     });
-  }
-
-  handlePickerOk = (val) => {
-    console.log('picker ok');
   }
 
   render() {
@@ -127,7 +99,6 @@ class FormDemo extends React.Component {
             type="phone"
             placeholder="请输入手机号"
             elementId="200104"
-            onContextMenu={this.handleContextMenu}
             clear={true}
           >
             InputItem
@@ -137,7 +108,6 @@ class FormDemo extends React.Component {
             elementId="200106"
             type="text"
             placeholder="请输入短信验证码"
-            onInput={this.handleInput}
             extra={
               <TrackButton elementId="200105" size="small">获取验证码</TrackButton>
             }
@@ -154,7 +124,6 @@ class FormDemo extends React.Component {
               value={this.state.season}
               cols={1}
               onChange={this.handlePickerChange}
-              onOk={this.handlePickerOk}
               >
               <List.Item arrow="horizontal">Picker</List.Item>
             </TrackPicker>
@@ -173,7 +142,6 @@ class FormDemo extends React.Component {
                   agreement: e.target.checked
                 })
               }}
-              onContextMenu={(e) => console.log(e)}
               checked={this.state.agreement}
               >
               AgreeItem</AgreeItem>
@@ -181,7 +149,6 @@ class FormDemo extends React.Component {
           <List.Item>
             <div>
               input：<TrackInput type="text" placeholder="原始输入框" elementId="200109"
-                onSelect={this.handleOriginSelect}
                 />
             </div>
           </List.Item>
@@ -213,4 +180,4 @@ class FormDemo extends React.Component {
   }
 }
 
-const FormDemoWrapper = withTrack('1001')(createForm()(FormDemo));
+const FormDemoWrapper = withTrack('1001', false)(createForm()(FormDemo));

@@ -1,7 +1,12 @@
+import { EventType, ElementType } from "./enum";
+//eventid前缀定义
+const prefixEventId = "mszxyh_mobile";
+
 class TrackQueue {
 
   constructor(){
     this.queue = [];
+    this.extraInfo = {};
   }
 
   /**
@@ -9,15 +14,37 @@ class TrackQueue {
    * @param {*} trackEvent 一次操作事件
    */
   push(trackEvent){
-    console.log(trackEvent.eventid);
-    this.queue.push(trackEvent);
+    const {
+      elementId,
+      elementType=ElementType.BUTTON,
+      pageId,
+      eventType=EventType.CLICK.eventType
+    } = trackEvent;
+    let eventId = `${prefixEventId}_${elementType}_${eventType}`
+    this.queue.push({
+      eventid: eventId,
+      json: {
+        V_DS: "ANDROID",
+        V_SID: "",
+        V_USER_ID: "",
+        V_INDEX: Date.now(),
+        V_PAGEID: pageId,
+        V_PATH: encodeURIComponent(window.location.href),
+        V_COMPONENT: elementId,
+        ...this.extraInfo,
+      },
+    });
+    console.log(eventId);
   }
 
   /**
    * 向后台发送收集的数据
    */
   send(){
-
+    if(this.queue.length > 0){
+      console.log(this.queue);
+      this.clear();
+    }
   }
 
   /**
@@ -33,6 +60,14 @@ class TrackQueue {
    */
   getSize(){
     return this.queue.length;
+  }
+
+  /**
+   * 配置基础信息
+   * @param {Object} data
+   */
+  configExtraInfo(data={}){
+    this.extraInfo = data;
   }
 
 }

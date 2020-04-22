@@ -5,8 +5,7 @@ import PropTypes from "prop-types";
 import { EventType, ElementType } from "./enum";
 
 const capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join("");
-//eventid前缀定义
-const prefixEventId = "mszxyh_mobile";
+
 //不需要处理连续操作的事件
 const ignoreEventTypeFlag = [
   EventType.COPY.eventType,
@@ -25,46 +24,51 @@ const ignoreEventTypeFlag = [
 /**
  * form表单增加收集数据的功能
  * @param {string} pageId - 页面编号
+ * @param {boolean} autoSend 是否自动发送数据
  */
-function withTrack(pageId) {
+function withTrack(pageId, autoSend=true) {
   /**
    * @param {Component} FormComponent 要采集数据的form表单
    */
   return function withTrack(FormComponent) {
     return class extends React.Component {
+
       constructor(args) {
         super(args);
         this.pageId = pageId;
+        this.autoSend = autoSend;
       }
 
       componentDidMount() {
-        trackQueue.clear();
+        // trackQueue.clear();
       }
 
-      componentWillMount() {
+      componentWillUnmount() {
         //TODO 发送应该封装到queue，还是当前组件
-        trackQueue.send();
+        if(this.autoSend){
+          trackQueue.send();
+        }
       }
 
       push = (data) => {
         //TODO 采集数据格式
         trackQueue.push({
-          eventid: data.eventId,
-          json: {
-            V_DS: "ANDROID",
-            V_SID: "",
-            V_USER_ID: "",
-            V_INDEX: Date.now(),
-            V_PAGEID: this.pageId,
-            V_PATH: encodeURIComponent(window.location.href),
-            V_COMPONENT: data.elementId,
-          },
+          ...data,
+          pageId: this.pageId,
         });
       };
+
+      /**
+       * 手动发送数据
+       */
+      send = () => {
+        trackQueue.send();
+      }
 
       render() {
         const trackProps = {
           push: this.push,
+          send: this.send,
         };
         return (
           <TrackContext.Provider value={trackProps}>
@@ -182,7 +186,7 @@ function bindTrackEvent(eventList = [], elementType) {
        */
       bindEvent = (eventName, eventTypeList, elementType) => {
         return (e, ...rest) => {
-          console.log(eventName);
+          // console.log(eventName);
           //TODO 处理特殊事件
           let lowerEventName = eventName.toLowerCase();
           switch (lowerEventName) {
@@ -335,7 +339,8 @@ function bindTrackEvent(eventList = [], elementType) {
             //TODO 采集数据格式
             this.context.push({
               elementId,
-              eventId: `${prefixEventId}_${this.elementType}_${eventType}`,
+              elementType: elementType,
+              eventType,
             });
           }
         });
