@@ -1,4 +1,4 @@
-import { EventType, ElementType } from "./enum";
+import { EventType, ElementType, isSupportTrack } from "./enum";
 //eventid前缀定义
 const prefixEventId = "mszxyh_mobile";
 
@@ -14,27 +14,29 @@ class TrackQueue {
    * @param {*} trackEvent 一次操作事件
    */
   push(trackEvent){
-    const {
-      elementId,
-      elementType=ElementType.BUTTON,
-      pageId,
-      eventType=EventType.CLICK.eventType
-    } = trackEvent;
-    let eventId = `${prefixEventId}_${elementType}_${eventType}`
-    this.queue.push({
-      eventid: eventId,
-      json: {
-        V_DS: "ANDROID",
-        V_SID: "",
-        V_USER_ID: "",
-        V_INDEX: Date.now(),
-        V_PAGEID: pageId,
-        V_PATH: encodeURIComponent(window.location.href),
-        V_COMPONENT: elementId,
-        ...this.extraInfo,
-      },
-    });
-    console.log(eventId);
+    if(isSupportTrack){
+      const {
+        elementId,
+        elementType=ElementType.BUTTON,
+        pageId,
+        eventType=EventType.CLICK.eventType
+      } = trackEvent;
+      let eventId = `${prefixEventId}_${elementType}_${eventType}`
+      this.queue.push({
+        eventid: eventId,
+        json: {
+          V_DS: "ANDROID",
+          V_SID: "",
+          V_USER_ID: "",
+          V_INDEX: Date.now(),
+          V_PAGEID: pageId,
+          V_PATH: encodeURIComponent(window.location.href),
+          V_COMPONENT: elementId,
+          ...this.extraInfo,
+        },
+      });
+      console.log(eventId);
+    }
   }
 
   /**

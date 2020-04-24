@@ -2,7 +2,7 @@ import React from "react";
 import { TrackContext } from "./context";
 import { trackQueue } from "./queue";
 import PropTypes from "prop-types";
-import { EventType, ElementType } from "./enum";
+import { EventType, ElementType, isSupportTrack } from "./enum";
 
 const capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join("");
 
@@ -97,38 +97,42 @@ function bindTrackEvent(eventList = [], elementType) {
       constructor(props) {
         super(props);
         this.elementType = elementType;
-        //为了监控某些操作需要多绑定事件，触发这些事件时不发送数据，例如只监控输入，blur事件也需要绑定，要监控的原始操作保存在eventTypeList数组
-        this.eventTypeList = [];
-        //操作是否触发过的标记，触发过设置为true，某些事件连续触发算一次操作
-        this.eventTypeFlag = {};
-
-        //react不能绑定多个相同事件，把list转成map
-        let bindEventMap = {};
-        eventList.forEach(({ eventName, eventType }) => {
-          this.eventTypeList.push(eventType);
-          if (!bindEventMap[eventName]) {
-            bindEventMap[eventName] = [eventType];
-          } else {
-            bindEventMap[eventName].push(eventType);
-          }
-        });
-
-        //TODO 补充缺失的事件，采集输入操作，必须绑定focus和blur事件，传入的事件没有时需要补充进去
-
         //绑定所有事件
         this.eventHandleProps = {};
-        for (let eventName in bindEventMap) {
-          const capitalizeEventName = "on" + capitalize(eventName);
-          this.eventHandleProps[capitalizeEventName] = this.bindEvent(
-            capitalizeEventName,
-            bindEventMap[eventName],
-            elementType
-          );
+
+        if(isSupportTrack){
+          //为了监控某些操作需要多绑定事件，触发这些事件时不发送数据，例如只监控输入，blur事件也需要绑定，要监控的原始操作保存在eventTypeList数组
+          this.eventTypeList = [];
+          //操作是否触发过的标记，触发过设置为true，某些事件连续触发算一次操作
+          this.eventTypeFlag = {};
+
+          //react不能绑定多个相同事件，把list转成map
+          let bindEventMap = {};
+          eventList.forEach(({ eventName, eventType }) => {
+            this.eventTypeList.push(eventType);
+            if (!bindEventMap[eventName]) {
+              bindEventMap[eventName] = [eventType];
+            } else {
+              bindEventMap[eventName].push(eventType);
+            }
+          });
+
+          //TODO 补充缺失的事件，采集输入操作，必须绑定focus和blur事件，传入的事件没有时需要补充进去
+
+          for (let eventName in bindEventMap) {
+            const capitalizeEventName = "on" + capitalize(eventName);
+            this.eventHandleProps[capitalizeEventName] = this.bindEvent(
+              capitalizeEventName,
+              bindEventMap[eventName],
+              elementType
+            );
+          }
         }
 
       }
 
       componentDidMount(){
+        if(!isSupportTrack) return;
         if(this.elementType === ElementType.MODAL && this.props.visible){ //监控Modal弹出
           this.eventHandleProps['on' + EventType.POP.eventName]();
         }else if(this.elementType === ElementType.SELECT){ //Picker控件
@@ -140,6 +144,7 @@ function bindTrackEvent(eventList = [], elementType) {
       }
 
       componentWillReceiveProps(nextProps){
+        if(!isSupportTrack) return;
         if(this.elementType === ElementType.MODAL){ //监控Modal弹出
           if(!this.props.visible && nextProps.visible){
             this.eventHandleProps['on' + EventType.POP.eventName]();

@@ -1,3 +1,5 @@
+// import $nativeCall from 'zx-utils/nativeCall';
+
 /**
  * 操作类型定义
  */
@@ -98,3 +100,7 @@ export const ElementType = {
   SELECT: 'select',
   MODAL: 'modal',
 }
+
+//过滤不支持的版本
+// export const isSupportTrack = $nativeCall.getClientVersion() > 400 ? true : false;
+export const isSupportTrack = false;
