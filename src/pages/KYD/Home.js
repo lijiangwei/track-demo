@@ -1,6 +1,14 @@
-import React, { PureComponent } from "react";
-import { NavBar, List, InputItem, WhiteSpace, Button, Icon, Picker } from "antd-mobile";
-import {Link} from 'react-router-dom';
+import React, { PureComponent } from 'react';
+import {
+  NavBar,
+  List,
+  InputItem,
+  WhiteSpace,
+  Button,
+  Icon,
+  Picker,
+} from 'antd-mobile';
+import { Link } from 'react-router';
 import {
   TrackInputItem,
   TrackInput,
@@ -10,11 +18,10 @@ import {
   TrackPicker,
   TrackModal,
   trackQueue,
-}
-from 'track';
-import {createForm} from 'rc-form';
+} from 'track';
+import { createForm } from 'rc-form';
 
-const {AgreeItem} = TrackCheckbox;
+const { AgreeItem } = TrackCheckbox;
 
 const seasons = [
   {
@@ -39,17 +46,25 @@ export default class Home extends PureComponent {
   render() {
     return (
       <div>
-        <NavBar mode="light"
-          leftContent={<a onClick={
-            () => {
-              //返回按钮点击数据
-              trackQueue.push({
-                elementId: "200101",
-                pageId: "1001",
-              });
-              this.props.history.goBack();
-            }
-          }><Icon type="left" /></a>}>首页</NavBar>
+        <NavBar
+          mode="light"
+          leftContent={
+            <a
+              onClick={() => {
+                //返回按钮点击数据
+                trackQueue.push({
+                  elementId: '200101',
+                  pageId: '1001',
+                });
+                this.props.history.goBack();
+              }}
+            >
+              <Icon type="left" />
+            </a>
+          }
+        >
+          首页
+        </NavBar>
         <WhiteSpace />
         <FormDemoWrapper history={this.props.history} />
       </div>
@@ -58,18 +73,17 @@ export default class Home extends PureComponent {
 }
 
 class FormDemo extends React.Component {
-
   state = {
     agreement: true,
     season: [],
     visible: false,
-  }
+  };
 
-  componentDidMount(){
+  componentDidMount() {
     //配置用户信息
     trackQueue.configExtraInfo({
-      V_SID: "",
-      V_USER_ID: "",
+      V_SID: '',
+      V_USER_ID: '',
     });
   }
 
@@ -80,42 +94,41 @@ class FormDemo extends React.Component {
         this.props.history.push('/track-item-result');
       }
     });
-  }
-
+  };
 
   handleOriginSelect = (e) => {
     console.log(e.type, e.currentTarget.value);
-  }
+  };
 
   handleSelect = (e) => {
     console.log(e.type);
-  }
+  };
 
   handleInput = (e) => {
     console.log(e.type);
-  }
+  };
 
   handleChange = (e) => {
     console.log(e.type);
-  }
+  };
 
   handleContextMenu = (e) => {
-    console.log("handleContextMenu");
-  }
+    console.log('handleContextMenu');
+  };
 
   handleClick = (e) => {
     console.log(e);
-  }
+  };
 
   handlePickerChange = (val) => {
     this.setState({
       season: val,
     });
-  }
+  };
 
   handlePickerOk = (val) => {
     console.log('picker ok');
-  }
+  };
 
   render() {
     const { getFieldProps } = this.props.form;
@@ -123,7 +136,7 @@ class FormDemo extends React.Component {
       <div>
         <List>
           <TrackInputItem
-            {...getFieldProps("phone")}
+            {...getFieldProps('phone')}
             type="phone"
             placeholder="请输入手机号"
             elementId="200104"
@@ -133,13 +146,15 @@ class FormDemo extends React.Component {
             InputItem
           </TrackInputItem>
           <TrackInputItem
-            {...getFieldProps("phoneCode")}
+            {...getFieldProps('phoneCode')}
             elementId="200106"
             type="text"
             placeholder="请输入短信验证码"
             onInput={this.handleInput}
             extra={
-              <TrackButton elementId="200105" size="small">获取验证码</TrackButton>
+              <TrackButton elementId="200105" size="small">
+                获取验证码
+              </TrackButton>
             }
           >
             短信验证码
@@ -155,43 +170,68 @@ class FormDemo extends React.Component {
               cols={1}
               onChange={this.handlePickerChange}
               onOk={this.handlePickerOk}
-              >
+            >
               <List.Item arrow="horizontal">Picker</List.Item>
             </TrackPicker>
           </List.Item>
           <List.Item>
-            <Button type="primary" onClick={() => this.setState({
-              season: ['秋'],
-            })}>修改Picker的值触发反显</Button>
+            <Button
+              type="primary"
+              onClick={() =>
+                this.setState({
+                  season: ['秋'],
+                })
+              }
+            >
+              修改Picker的值触发反显
+            </Button>
           </List.Item>
           <List.Item>
             <AgreeItem
-              {...getFieldProps("agreement")}
+              {...getFieldProps('agreement')}
               elementId="200108"
               onChange={(e) => {
                 this.setState({
-                  agreement: e.target.checked
-                })
+                  agreement: e.target.checked,
+                });
               }}
               onContextMenu={(e) => console.log(e)}
               checked={this.state.agreement}
-              >
-              AgreeItem</AgreeItem>
+            >
+              AgreeItem
+            </AgreeItem>
           </List.Item>
           <List.Item>
             <div>
-              input：<TrackInput type="text" placeholder="原始输入框" elementId="200109"
+              input：
+              <TrackInput
+                type="text"
+                placeholder="原始输入框"
+                elementId="200109"
                 onSelect={this.handleOriginSelect}
-                />
+              />
             </div>
           </List.Item>
           <List.Item>
-            <Button type="primary" onClick={() => this.setState({
-              visible: true,
-            })}>Modal</Button>
+            <Button
+              type="primary"
+              onClick={() =>
+                this.setState({
+                  visible: true,
+                })
+              }
+            >
+              Modal
+            </Button>
           </List.Item>
           <List.Item>
-            <TrackButton elementId="200107" type="primary" onClick={this.handleSubmit}>提交</TrackButton>
+            <TrackButton
+              elementId="200107"
+              type="primary"
+              onClick={this.handleSubmit}
+            >
+              提交
+            </TrackButton>
           </List.Item>
         </List>
         <TrackModal
@@ -200,9 +240,16 @@ class FormDemo extends React.Component {
           transparent
           maskClosable={false}
           title="协议"
-          footer={[{ text: 'Ok', onPress: () => {this.setState({
-            visible: false,
-          })} }]}
+          footer={[
+            {
+              text: 'Ok',
+              onPress: () => {
+                this.setState({
+                  visible: false,
+                });
+              },
+            },
+          ]}
         >
           <div style={{ height: 100, overflow: 'scroll' }}>
             这是一段协议内容....

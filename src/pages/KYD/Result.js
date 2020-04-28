@@ -1,14 +1,22 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
-import { NavBar, WhiteSpace, Icon } from "antd-mobile";
-import {withTrack} from 'track';
+import { Link } from 'react-router';
+import { NavBar, WhiteSpace, Icon } from 'antd-mobile';
+import { withTrack } from 'track';
 
 export default class Confirm extends React.Component {
   render() {
     return (
       <div>
-        <NavBar mode="light"
-          leftContent={<Link to="/"><Icon type="left" /></Link>}>第二页</NavBar>
+        <NavBar
+          mode="light"
+          leftContent={
+            <Link to="/">
+              <Icon type="left" />
+            </Link>
+          }
+        >
+          第二页
+        </NavBar>
         <WhiteSpace />
         <ResultDemoWrapper />
       </div>
@@ -16,13 +24,16 @@ export default class Confirm extends React.Component {
   }
 }
 
-
 class ResultDemo extends React.Component {
   render() {
     return (
-      <h5 style={{
-        textAlign: 'center'
-      }}>模拟结果页</h5>
+      <h5
+        style={{
+          textAlign: 'center',
+        }}
+      >
+        模拟结果页
+      </h5>
     );
   }
 }

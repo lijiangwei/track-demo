@@ -8,9 +8,9 @@
     "@testing-library/user-event": "^7.1.2",
     "antd-mobile": "2.0.0",
     "rc-form": "^2.4.11",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-router-dom": "^5.1.2",
+    "react": "15.5.4",
+    "react-dom": "15.5.4",
+    "react-router": "2.3.0",
     "react-scripts": "3.4.1"
   },
   "scripts": {
