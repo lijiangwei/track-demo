@@ -5,6 +5,10 @@ import {Picker} from 'antd-mobile';
 const TrackPicker = bindTrackEvent([
   EventType.PICKER,
   EventType.DISPLAY,
-], ElementType.SELECT)(Picker);
+  EventType.SHOW,
+  EventType.HIDE,
+  EventType.CAMERA,
+  EventType.SCREENSHOT,
+], ElementType.PICKER)(Picker);
 
 export default TrackPicker;

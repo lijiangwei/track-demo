@@ -88,6 +88,26 @@ export const EventType = {
     eventName: 'Pop',
     eventType: 'pop',
   },
+  //截屏
+  SCREENSHOT: {
+    eventName: 'CustomEvent',
+    eventType: 'screenshot',
+  },
+  //跳入
+  SHOW: {
+    eventName: 'CustomEvent',
+    eventType: 'show',
+  },
+  //跳出
+  HIDE: {
+    eventName: 'CustomEvent',
+    eventType: 'hide',
+  },
+  //录屏
+  CAMERA: {
+    eventName: 'CustomEvent',
+    eventType: 'camera',
+  }
 }
 
 /**
@@ -98,9 +118,10 @@ export const ElementType = {
   CHECKBOX: 'checkbox',
   BUTTON: 'button',
   SELECT: 'select',
+  PICKER: 'picker',
   MODAL: 'modal',
 }
 
 //过滤不支持的版本
 // export const isSupportTrack = $nativeCall.getClientVersion() > 400 ? true : false;
-export const isSupportTrack = false;
+export const isSupportTrack = true;

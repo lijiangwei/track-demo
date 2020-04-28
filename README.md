@@ -23,8 +23,10 @@ if(document.selection){
   }
 ```
 
+## 活动组件定义
+* InputItem、input - focus
+* Picker - 弹出选择框 
+* Modal - 弹出
+
 ## TODO
-* 数据支持手动上传
-* 导出配置用户信息的方法
-* 导出收集返回按钮的方法
 * 

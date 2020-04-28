@@ -1,6 +1,6 @@
 import { EventType, ElementType, isSupportTrack } from "./enum";
-//eventid前缀定义
-const prefixEventId = "mszxyh_mobile";
+//版本定义
+const version = "1.0.0";
 
 class TrackQueue {
 
@@ -17,11 +17,12 @@ class TrackQueue {
     if(isSupportTrack){
       const {
         elementId,
-        elementType=ElementType.BUTTON,
+        elementType,
         pageId,
         eventType=EventType.CLICK.eventType
       } = trackEvent;
-      let eventId = `${prefixEventId}_${elementType}_${eventType}`
+      let eventId = elementId ? `${pageId}_${elementId}_${eventType}_${version}`
+        : `${pageId}__${eventType}_${version}`;
       this.queue.push({
         eventid: eventId,
         json: {
@@ -32,6 +33,7 @@ class TrackQueue {
           V_PAGEID: pageId,
           V_PATH: encodeURIComponent(window.location.href),
           V_COMPONENT: elementId,
+          V_TYPE: elementType,
           ...this.extraInfo,
         },
       });

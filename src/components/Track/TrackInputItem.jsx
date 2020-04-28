@@ -13,6 +13,10 @@ const TrackInputItem = bindTrackEvent([
   EventType.DELETE,
   EventType.INPUT,
   EventType.MOVECURSOR,
+  EventType.SCREENSHOT,
+  EventType.SHOW,
+  EventType.HIDE,
+  EventType.CAMERA,
 ], ElementType.INPUT)(InputItem);
 
 export default TrackInputItem;

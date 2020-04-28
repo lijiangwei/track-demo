@@ -3,6 +3,7 @@ import { TrackContext } from "./context";
 import { trackQueue } from "./queue";
 import PropTypes from "prop-types";
 import { EventType, ElementType, isSupportTrack } from "./enum";
+import eventEmitter from './event';
 
 const capitalize = ([first, ...rest]) => first.toUpperCase() + rest.join("");
 
@@ -21,6 +22,14 @@ const ignoreEventTypeFlag = [
   EventType.SELECTALL.eventType,
 ];
 
+//每个组件需要额外绑定的事件
+const extraEvent = {
+  [ElementType.PICKER]: ["VisibleChange"],
+}
+
+//当前激活的组件
+let activeElement = null;
+
 /**
  * form表单增加收集数据的功能
  * @param {string} pageId - 页面编号
@@ -33,14 +42,16 @@ function withTrack(pageId, autoSend=true) {
   return function withTrack(FormComponent) {
     return class extends React.Component {
 
-      constructor(args) {
-        super(args);
+      constructor(props) {
+        super(props);
         this.pageId = pageId;
         this.autoSend = autoSend;
+        this.customEvent = {};
       }
 
       componentDidMount() {
         // trackQueue.clear();
+        eventEmitter.on('CustomTrackEvent', this.handleCustomEvent);
       }
 
       componentWillUnmount() {
@@ -48,6 +59,7 @@ function withTrack(pageId, autoSend=true) {
         if(this.autoSend){
           trackQueue.send();
         }
+        eventEmitter.removeListener('CustomTrackEvent', this.handleCustomEvent)
       }
 
       push = (data) => {
@@ -65,10 +77,64 @@ function withTrack(pageId, autoSend=true) {
         trackQueue.send();
       }
 
+      /**
+       * 设置当前激活的元素
+       */
+      setActiveElement = (elementCode) => {
+        activeElement = elementCode;
+      }
+
+      removeActiveElement = (elementCode) => {
+        if(activeElement === elementCode){
+          activeElement = '';
+        }
+      }
+
+      /**
+       * 监听自定义事件
+       * @param {Object} event
+       */
+      addEventListener = (event) => {
+        for(let eventName in event){
+          this.customEvent[eventName] = event[eventName].concat(this.customEvent[eventName] || []);
+        }
+      }
+
+      handleCustomEvent = (eventType, elementId) => {
+        if(elementId && this.customEvent[eventType]){
+          let tmp = null;
+          let flag = false;
+          for(let i=0; i<this.customEvent[eventType].length; i++){
+            tmp = this.customEvent[eventType][i];
+            if(tmp.elementId === elementId){
+              this.push({
+                eventType,
+                elementId,
+                elementType: tmp.elementType,
+              });
+              flag = true;
+              break;
+            }
+          }
+          if(!flag){
+            this.push({
+              eventType,
+            });
+          }
+        }else{  //页面级别
+          this.push({
+            eventType,
+          });
+        }
+      }
+
       render() {
         const trackProps = {
           push: this.push,
           send: this.send,
+          setActiveElement: this.setActiveElement,
+          removeActiveElement: this.removeActiveElement,
+          addEventListener: this.addEventListener,
         };
         return (
           <TrackContext.Provider value={trackProps}>
@@ -103,21 +169,43 @@ function bindTrackEvent(eventList = [], elementType) {
         if(isSupportTrack){
           //为了监控某些操作需要多绑定事件，触发这些事件时不发送数据，例如只监控输入，blur事件也需要绑定，要监控的原始操作保存在eventTypeList数组
           this.eventTypeList = [];
+          this.customEventTypeList = {};
           //操作是否触发过的标记，触发过设置为true，某些事件连续触发算一次操作
           this.eventTypeFlag = {};
 
           //react不能绑定多个相同事件，把list转成map
           let bindEventMap = {};
           eventList.forEach(({ eventName, eventType }) => {
-            this.eventTypeList.push(eventType);
-            if (!bindEventMap[eventName]) {
-              bindEventMap[eventName] = [eventType];
-            } else {
-              bindEventMap[eventName].push(eventType);
+            if(eventName === 'CustomEvent'){
+              if(!this.customEventTypeList[eventType]){
+                this.customEventTypeList[eventType] = [{
+                  elementId: this.props.elementId,
+                  elementType,
+                }];
+              }else{
+                this.customEventTypeList[eventType].push({
+                  elementId: this.props.elementId,
+                  elementType,
+                });
+              }
+            }else{
+              this.eventTypeList.push(eventType);
+              if (!bindEventMap[eventName]) {
+                bindEventMap[eventName] = [eventType];
+              } else {
+                bindEventMap[eventName].push(eventType);
+              }
             }
           });
 
           //TODO 补充缺失的事件，采集输入操作，必须绑定focus和blur事件，传入的事件没有时需要补充进去
+          if(extraEvent[elementType] && extraEvent[elementType].length > 0){
+            extraEvent[elementType].forEach(eventName => {
+              if (!bindEventMap[eventName]) {
+                bindEventMap[eventName] = [];
+              }
+            })
+          }
 
           for (let eventName in bindEventMap) {
             const capitalizeEventName = "on" + capitalize(eventName);
@@ -127,15 +215,17 @@ function bindTrackEvent(eventList = [], elementType) {
               elementType
             );
           }
+
         }
 
       }
 
       componentDidMount(){
         if(!isSupportTrack) return;
+        this.context.addEventListener(this.customEventTypeList);
         if(this.elementType === ElementType.MODAL && this.props.visible){ //监控Modal弹出
           this.eventHandleProps['on' + EventType.POP.eventName]();
-        }else if(this.elementType === ElementType.SELECT){ //Picker控件
+        }else if(this.elementType === ElementType.PICKER){ //Picker控件
           //TODO 如何判断初始值是正确的?
           if(this.props.value instanceof Array && this.props.value.length > 0){
             this.eventHandleProps['on' + EventType.DISPLAY.eventName]();
@@ -148,8 +238,11 @@ function bindTrackEvent(eventList = [], elementType) {
         if(this.elementType === ElementType.MODAL){ //监控Modal弹出
           if(!this.props.visible && nextProps.visible){
             this.eventHandleProps['on' + EventType.POP.eventName]();
+            this.setActiveElement();
+          }else if(this.props.visible && !nextProps.visible){
+            this.removeActiveElement();
           }
-        }else if(this.elementType === ElementType.SELECT){ //Picker控件
+        }else if(this.elementType === ElementType.PICKER){ //Picker控件
           //TODO 两个数组是否要深比较
           if(!this.isPickerOnOk && nextProps.value !== this.props.value){
             this.eventHandleProps['on' + EventType.DISPLAY.eventName]();
@@ -206,10 +299,19 @@ function bindTrackEvent(eventList = [], elementType) {
                 }
                 this.prevSelectionEnd = this.prevValueLength = value.length;
                 this.isSelectAll = ''; //select-选中 selectAll-选中全部
+
+                //设置当前活动元素
+                this.setActiveElement();
               }
               this.sendSelectType();
               this.pushData(eventTypeList);
               break;
+            case "onblur":
+                this.sendSelectType();
+                this.pushData(eventTypeList);
+                this.resetEventTypeFlag();
+                this.removeActiveElement();
+                break;
             case "oninput":
               //TODO 如何区分输入、删除、粘贴
               if(!this.hasPasted && !this.hasDeletedText){
@@ -240,11 +342,6 @@ function bindTrackEvent(eventList = [], elementType) {
                   EventType.INPUT.eventType
                 ]);
               }
-              break;
-            case "onblur":
-              this.sendSelectType();
-              this.pushData(eventTypeList);
-              this.resetEventTypeFlag();
               break;
             case "onselect":
               //只处理了输入框
@@ -305,9 +402,18 @@ function bindTrackEvent(eventList = [], elementType) {
               this.pushData(eventTypeList);
               break;
             case 'onok':
-              if(elementType === ElementType.SELECT){ //选择框Picker
+              if(elementType === ElementType.PICKER){ //选择框Picker
                 this.isPickerOnOk = true;
                 this.pushData(eventTypeList);
+              }
+              break;
+            case 'onvisiblechange':
+              if(elementType === ElementType.PICKER){ //选择框Picker
+                if(e){
+                  this.setActiveElement();
+                }else{
+                  this.removeActiveElement();
+                }
               }
               break;
             default:
@@ -330,6 +436,14 @@ function bindTrackEvent(eventList = [], elementType) {
           this.pushData([this.isSelectAll]);
           this.isSelectAll = '';
         }
+      }
+
+      setActiveElement = () => {
+        this.context.setActiveElement(this.props.elementId);
+      }
+
+      removeActiveElement = () => {
+        this.context.removeActiveElement(this.props.elementId);
       }
 
       /**
@@ -361,6 +475,16 @@ function bindTrackEvent(eventList = [], elementType) {
       }
     };
   };
+}
+
+/**
+ * 接受客户端发送的事件
+ * @param {String} eventType 事件名称
+ */
+window.receiveAppEvent = (eventType) => {
+  if(isSupportTrack){
+    eventEmitter.emit('CustomTrackEvent', eventType, activeElement);
+  }
 }
 
 export { withTrack, bindTrackEvent };
