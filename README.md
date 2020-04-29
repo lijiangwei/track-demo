@@ -24,9 +24,12 @@ if(document.selection){
 ```
 
 ## 活动组件定义
-* InputItem、input - focus
-* Picker - 弹出选择框 
-* Modal - 弹出
+
+| 组件名  | 活动组件事件  |
+| ---- | ---- |
+| InputItem、input  | focus |
+| Picker  | 弹出选择框  |
+| Modal | 弹出  |
 
 ## 配置babel支持class-properties
 ``` shell
