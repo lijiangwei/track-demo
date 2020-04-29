@@ -28,5 +28,16 @@ if(document.selection){
 * Picker - 弹出选择框 
 * Modal - 弹出
 
+## 配置babel支持class-properties
+``` shell
+# 安装依赖的插件
+npm install transform-class-properties@6.24.1 --save-dev
+
+# roadhog增加babel插件
+extraBabelPlugins[
+  "transform-class-properties"
+]
+
+```
 ## TODO
 * 
