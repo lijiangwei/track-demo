@@ -6,6 +6,7 @@ import TrackCheckbox from './TrackCheckbox';
 import TrackInput from './TrackInput';
 import TrackPicker from './TrackPicker';
 import TrackModal from './TrackModal';
+import TrackPickerMenu from './TrackPickerMenu';
 import { trackQueue } from './utils/queue';
 
 export { EventType, ElementType } from './utils/enum';
@@ -21,4 +22,5 @@ export {
   trackQueue,
   TrackA,
   TrackImg,
+  TrackPickerMenu,
 };

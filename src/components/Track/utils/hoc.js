@@ -25,7 +25,8 @@ const ignoreEventTypeFlag = [
 
 //每个组件需要额外绑定的事件
 const extraEvent = {
-  [ElementType.PICKER]: ['VisibleChange'],
+  [ElementType.PICKER]: ['VisibleChange', 'Dismiss', 'Ok'],
+  [ElementType.PICKERMENU]: ['VisibleChange', 'Ok'],
 };
 
 //当前激活的组件
@@ -245,13 +246,19 @@ function bindTrackEvent(eventList = [], elementType) {
         if (this.elementType === ElementType.MODAL && this.props.visible) {
           //监控Modal弹出
           this.eventHandleProps['on' + EventType.POP.eventName]();
-        } else if (this.elementType === ElementType.PICKER) {
+        } else if (
+          this.elementType === ElementType.PICKER ||
+          this.elementType === ElementType.PICKERMENU
+        ) {
           //Picker控件
           //TODO 如何判断初始值是正确的?
           if (
             this.props.value instanceof Array &&
             this.props.value.length > 0
           ) {
+            if (this.elementType === ElementType.PICKER) {
+              this.value = this.props.value;
+            }
             this.eventHandleProps['on' + EventType.DISPLAY.eventName]();
           }
         }
@@ -267,10 +274,16 @@ function bindTrackEvent(eventList = [], elementType) {
           } else if (this.props.visible && !nextProps.visible) {
             this.removeActiveElement();
           }
-        } else if (this.elementType === ElementType.PICKER) {
+        } else if (
+          this.elementType === ElementType.PICKER ||
+          this.elementType === ElementType.PICKERMENU
+        ) {
           //Picker控件
           //TODO 两个数组是否要深比较
           if (!this.isPickerOnOk && nextProps.value !== this.props.value) {
+            if (this.elementType === ElementType.PICKER) {
+              this.value = nextProps.value;
+            }
             this.eventHandleProps['on' + EventType.DISPLAY.eventName]();
           }
           this.isPickerOnOk = false;
@@ -437,14 +450,72 @@ function bindTrackEvent(eventList = [], elementType) {
               this.pushData(eventTypeList);
               break;
             case 'onok':
-              if (elementType === ElementType.PICKER) {
+              if (
+                elementType === ElementType.PICKER ||
+                elementType === ElementType.PICKERMENU
+              ) {
                 //选择框Picker
                 this.isPickerOnOk = true;
-                this.pushData(eventTypeList);
+              }
+              break;
+            case 'onpickerchange':
+              if (
+                elementType === ElementType.PICKER ||
+                elementType === ElementType.PICKERMENU
+              ) {
+                //选择框Picker
+                this.isPickerOnOk = true;
+                if (
+                  elementType === ElementType.PICKER &&
+                  this.props.elementId instanceof Array
+                ) {
+                  if (
+                    e instanceof Array &&
+                    this.props.elementId.length !== e.length
+                  ) {
+                    throw new Error(
+                      'elementId.length must be equal to value.length'
+                    );
+                  }
+                  //找到第一个值不一样的是选择，剩余的是反显
+                  let i = 0;
+                  if (this.value) {
+                    for (i; i < e.length; i++) {
+                      if (isNotEmpty(e[i]) && this.value[i] !== e[i]) {
+                        break;
+                      }
+                    }
+                  }
+                  this.pushData(eventTypeList, this.props.elementId[i]);
+                  for (i++; i < e.length; i++) {
+                    if (
+                      isNotEmpty(e[i]) &&
+                      (!this.value || this.value[i] !== e[i])
+                    ) {
+                      this.pushData(
+                        [EventType.DISPLAY.eventType],
+                        this.props.elementId[i]
+                      );
+                    }
+                  }
+                } else {
+                  this.pushData(eventTypeList);
+                }
+                if (elementType === ElementType.PICKER) {
+                  this.value = e;
+                }
+              }
+              break;
+            case 'ondismiss':
+              if (elementType === ElementType.PICKER) {
+                this.value = this.props.value;
               }
               break;
             case 'onvisiblechange':
-              if (elementType === ElementType.PICKER) {
+              if (
+                elementType === ElementType.PICKER ||
+                elementType === ElementType.PICKERMENU
+              ) {
                 //选择框Picker
                 if (e) {
                   this.setActiveElement();
@@ -486,9 +557,10 @@ function bindTrackEvent(eventList = [], elementType) {
       /**
        * 把操作类型放入发送队列
        * @param {Array} eventTypeList 操作类型
+       * @param {undefined|string} elementId 元素编号
        */
-      pushData = (eventTypeList) => {
-        const { elementId } = this.props;
+      pushData = (eventTypeList, elementId = this.props.elementId) => {
+        // const { elementId } = this.props;
         eventTypeList.forEach((eventType) => {
           if (
             ignoreEventTypeFlag.indexOf(eventType) > -1 ||
@@ -496,11 +568,21 @@ function bindTrackEvent(eventList = [], elementType) {
           ) {
             this.setEventTypeFlag(eventType);
             //TODO 采集数据格式
-            this.context.push({
-              elementId,
-              elementType: elementType,
-              eventType,
-            });
+            if (elementId instanceof Array) {
+              elementId.forEach((id) => {
+                this.context.push({
+                  elementId: id,
+                  elementType: elementType,
+                  eventType,
+                });
+              });
+            } else {
+              this.context.push({
+                elementId,
+                elementType: elementType,
+                eventType,
+              });
+            }
           }
         });
       };
@@ -515,6 +597,10 @@ function bindTrackEvent(eventList = [], elementType) {
       }
     };
   };
+}
+
+function isNotEmpty(s) {
+  return s !== undefined && s !== null && s !== '';
 }
 
 /**

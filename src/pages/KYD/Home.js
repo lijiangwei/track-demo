@@ -19,6 +19,7 @@ import {
   trackQueue,
   TrackA,
   TrackImg,
+  TrackPickerMenu,
 } from 'track';
 import { createForm } from 'rc-form';
 const logo = require('../../logo.svg');
@@ -43,6 +44,8 @@ const seasons = [
     value: '冬',
   },
 ];
+
+const initArea = ['01', '01-01', '01-01-02'];
 
 const areas = [
   {
@@ -101,6 +104,37 @@ const areas = [
   },
 ];
 
+const jobs = [
+  {
+    label: '职业大类1',
+    value: '01',
+    children: [
+      {
+        label: '职业1-1',
+        value: '01-01',
+      },
+      {
+        label: '职业1-2',
+        value: '01-02',
+      },
+    ],
+  },
+  {
+    label: '职业大类2',
+    value: '02',
+    children: [
+      {
+        label: '职业2-1',
+        value: '02-01',
+      },
+      {
+        label: '职业2-2',
+        value: '02-02',
+      },
+    ],
+  },
+];
+
 export default class Home extends PureComponent {
   render() {
     return (
@@ -135,6 +169,7 @@ class FormDemo extends React.Component {
   state = {
     agreement: true,
     season: [],
+    job: ['02', '02-01'],
     visible: false,
   };
 
@@ -155,38 +190,16 @@ class FormDemo extends React.Component {
     });
   };
 
-  handleOriginSelect = (e) => {
-    console.log(e.type, e.currentTarget.value);
-  };
-
-  handleSelect = (e) => {
-    console.log(e.type);
-  };
-
-  handleInput = (e) => {
-    console.log(e.type);
-  };
-
-  handleChange = (e) => {
-    console.log(e.type);
-  };
-
-  handleContextMenu = (e) => {
-    console.log('handleContextMenu');
-  };
-
-  handleClick = (e) => {
-    console.log(e);
-  };
-
   handlePickerChange = (val) => {
     this.setState({
       season: val,
     });
   };
 
-  handlePickerOk = (val) => {
-    console.log('picker ok');
+  handleJobChange = (val) => {
+    this.setState({
+      job: val,
+    });
   };
 
   render() {
@@ -199,7 +212,6 @@ class FormDemo extends React.Component {
             type="phone"
             placeholder="请输入手机号"
             elementId="200104"
-            onContextMenu={this.handleContextMenu}
             clear={true}
           >
             InputItem
@@ -209,7 +221,6 @@ class FormDemo extends React.Component {
             elementId="200106"
             type="text"
             placeholder="请输入短信验证码"
-            onInput={this.handleInput}
             extra={
               <TrackButton elementId="200105" size="small">
                 获取验证码
@@ -228,7 +239,6 @@ class FormDemo extends React.Component {
               value={this.state.season}
               cols={1}
               onChange={this.handlePickerChange}
-              onOk={this.handlePickerOk}
             >
               <List.Item arrow="horizontal">Picker</List.Item>
             </TrackPicker>
@@ -249,16 +259,21 @@ class FormDemo extends React.Component {
             <TrackPicker
               elementId={['200119', '200120', '200121']}
               {...getFieldProps('area', {
-                // initialValue: this.state.season
+                initialValue: initArea,
               })}
               data={areas}
               // cols={3}
-              onPickerChange={(val) => {
-                console.log(val);
-              }}
             >
               <List.Item arrow="horizontal">选择地区</List.Item>
             </TrackPicker>
+          </List.Item>
+          <List.Item>
+            <TrackPickerMenu
+              elementId="200122"
+              data={jobs}
+              value={this.state.job}
+              onOk={this.handleJobChange}
+            />
           </List.Item>
           <List.Item>
             <AgreeItem
@@ -298,7 +313,6 @@ class FormDemo extends React.Component {
                 type="text"
                 placeholder="原始输入框"
                 elementId="200109"
-                onSelect={this.handleOriginSelect}
               />
             </div>
           </List.Item>

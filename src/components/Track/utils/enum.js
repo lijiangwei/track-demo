@@ -67,7 +67,7 @@ export const EventType = {
    * select、picker控件
    */
   PICKER: {
-    eventName: 'Ok',
+    eventName: 'PickerChange',
     eventType: 'select',
   },
   /**
@@ -107,8 +107,8 @@ export const EventType = {
   CAMERA: {
     eventName: 'CustomEvent',
     eventType: 'camera',
-  }
-}
+  },
+};
 
 /**
  * 元素类型定义
@@ -120,7 +120,8 @@ export const ElementType = {
   SELECT: 'select',
   PICKER: 'picker',
   MODAL: 'modal',
-}
+  PICKERMENU: 'pickermenu',
+};
 
 //过滤不支持的版本
 // export const isSupportTrack = $nativeCall.getClientVersion() > 400 ? true : false;
