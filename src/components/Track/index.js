@@ -1,7 +1,7 @@
 // import {TrackContext} from './utils/context';
 import { withTrack } from './utils/hoc';
 import TrackInputItem from './TrackInputItem';
-import TrackButton from './TrackButton';
+import TrackButton, { TrackA, TrackImg } from './TrackButton';
 import TrackCheckbox from './TrackCheckbox';
 import TrackInput from './TrackInput';
 import TrackPicker from './TrackPicker';
@@ -19,4 +19,6 @@ export {
   TrackPicker,
   TrackModal,
   trackQueue,
+  TrackA,
+  TrackImg,
 };

@@ -8,7 +8,6 @@ import {
   Icon,
   Picker,
 } from 'antd-mobile';
-import { Link } from 'react-router';
 import {
   TrackInputItem,
   TrackInput,
@@ -18,8 +17,11 @@ import {
   TrackPicker,
   TrackModal,
   trackQueue,
+  TrackA,
+  TrackImg,
 } from 'track';
 import { createForm } from 'rc-form';
+const logo = require('../../logo.svg');
 
 const { AgreeItem } = TrackCheckbox;
 
@@ -39,6 +41,63 @@ const seasons = [
   {
     label: '冬',
     value: '冬',
+  },
+];
+
+const areas = [
+  {
+    label: '北京',
+    value: '01',
+    children: [
+      {
+        label: '北京',
+        value: '01-01',
+        children: [
+          {
+            label: '顺义区',
+            value: '01-01-01',
+          },
+          {
+            label: '朝阳区',
+            value: '01-01-02',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: '河南',
+    value: '02',
+    children: [
+      {
+        label: '郑州市',
+        value: '02-01',
+        children: [
+          {
+            label: '金水区',
+            value: '02-01-01',
+          },
+          {
+            label: '二七区',
+            value: '02-01-02',
+          },
+        ],
+      },
+      {
+        label: '新乡市',
+        value: '02-02',
+        children: [
+          {
+            label: '卫滨区',
+            value: '02-02-01',
+          },
+          {
+            label: '红旗区',
+            value: '02-02-02',
+          },
+        ],
+      },
+    ],
   },
 ];
 
@@ -187,6 +246,21 @@ class FormDemo extends React.Component {
             </Button>
           </List.Item>
           <List.Item>
+            <TrackPicker
+              elementId={['200119', '200120', '200121']}
+              {...getFieldProps('area', {
+                // initialValue: this.state.season
+              })}
+              data={areas}
+              // cols={3}
+              onPickerChange={(val) => {
+                console.log(val);
+              }}
+            >
+              <List.Item arrow="horizontal">选择地区</List.Item>
+            </TrackPicker>
+          </List.Item>
+          <List.Item>
             <AgreeItem
               {...getFieldProps('agreement')}
               elementId="200108"
@@ -200,6 +274,22 @@ class FormDemo extends React.Component {
             >
               AgreeItem
             </AgreeItem>
+          </List.Item>
+          <List.Item>
+            <TrackA elementId="200115">测试这是一个链接</TrackA>
+          </List.Item>
+          <List.Item>
+            <TrackImg
+              elementId="200116"
+              style={{
+                width: 50,
+                height: 50,
+              }}
+              onClick={() => {
+                console.log('img click.');
+              }}
+              src={logo}
+            />
           </List.Item>
           <List.Item>
             <div>

@@ -15,6 +15,7 @@ const ignoreEventTypeFlag = [
   EventType.BLUR.eventType,
   EventType.CHECKED.eventType,
   EventType.SELECT.eventType,
+  EventType.CLICK.eventType,
   //select的选择和反显
   EventType.PICKER.eventType,
   EventType.DISPLAY.eventType,
@@ -164,7 +165,10 @@ function bindTrackEvent(eventList = [], elementType) {
   return function (WrappedComponent) {
     return class TrackEventComponent extends React.Component {
       static propTypes = {
-        elementId: PropTypes.string.isRequired, //元素编号
+        elementId: PropTypes.oneOfType([
+          PropTypes.array.isRequired,
+          PropTypes.string.isRequired,
+        ]), //元素编号
       };
 
       static contextTypes = {
