@@ -24,6 +24,7 @@ class PickerMenu extends React.Component {
       this.setState({
         value: nextProps.value,
       });
+      this.setLabel(nextProps.value);
     }
   }
 
